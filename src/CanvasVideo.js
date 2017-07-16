@@ -1,4 +1,5 @@
 import debounce from 'lodash.debounce'
+import { videoWrapStyles, videoCanvasStyles, videoStyles } from './styles/base'
 
 export default {
   render (h) {
@@ -7,6 +8,10 @@ export default {
         'div',
         {
           attrs: { class: 'vue-canvasvideo-wrap' },
+          style: {
+            ...videoWrapStyles,
+            paddingBottom: this.aspectRatioPercentage
+          },
           ref: 'videoWrapper'
         },
         [
@@ -14,7 +19,7 @@ export default {
             'video',
             {
               attrs: { class: 'vue-canvasvideo-video', src: this.src },
-              style: { display: (this.showVideo) ? 'block' : 'none' },
+              style: videoStyles,
               ref: 'video'
             }
           ),
@@ -26,6 +31,7 @@ export default {
                 width: this.width,
                 height: this.height
               },
+              style: videoCanvasStyles,
               ref: 'videoCanvas'
             }
           )
@@ -36,6 +42,7 @@ export default {
   data () {
     return {
       playing: false,
+      aspectRatioPercentage: '',
       lastTime: 0,
       width: 0,
       height: 0
@@ -73,6 +80,7 @@ export default {
       const { video } = this.$refs
       this.width = video.videoWidth
       this.height = video.videoHeight
+      this.aspectRatioPercentage = `${(this.height / this.width) * 100}%`
     },
     play () {
       this.lastTime = Date.now()

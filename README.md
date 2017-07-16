@@ -2,7 +2,7 @@
 
 [![npm](https://img.shields.io/npm/v/vue-canvasvideo.svg)](https://www.npmjs.com/package/vue-canvasvideo) [![vue2](https://img.shields.io/badge/vue-2.x-brightgreen.svg)](https://vuejs.org/)
 
-> A Vue.js component for playing videos on canvas.
+> A Vue.js component for playing videos on HTML canvas. Useful for achieving autoplay videos in iOS and Safari.
 
 
 ## Overview
