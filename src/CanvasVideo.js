@@ -1,5 +1,13 @@
 import debounce from 'lodash.debounce'
-import { videoWrapStyles, videoCanvasStyles, videoStyles } from './styles/base'
+import CanvasVideoControls from './CanvasVideoControls'
+import {
+  videoWrapStyles,
+  videoWrapInnerStyles,
+  videoCanvasStyles,
+  videoStyles,
+  mediaCoveringStyles
+} from './styles/player/base'
+import { hidden } from './styles/helpers'
 
 export default {
   render (h) {
@@ -8,33 +16,41 @@ export default {
         'div',
         {
           attrs: { class: 'vue-canvasvideo-wrap' },
-          style: {
-            ...videoWrapStyles,
-            paddingBottom: this.aspectRatioPercentage
-          },
+          style: videoWrapStyles,
           ref: 'videoWrapper'
         },
         [
           h(
-            'video',
+            'div',
             {
-              attrs: { class: 'vue-canvasvideo-video', src: this.src },
-              style: videoStyles,
-              ref: 'video'
-            }
-          ),
-          h(
-            'canvas',
-            {
-              attrs: {
-                class: 'vue-canvasvideo-canvas',
-                width: this.width,
-                height: this.height
-              },
-              style: videoCanvasStyles,
-              ref: 'videoCanvas'
-            }
+              attrs: { class: 'vue-canvasvideo-inner' },
+              style: this.computedWrapStyles
+            },
+            [
+              h(
+                'video',
+                {
+                  attrs: { class: 'vue-canvasvideo-video', src: this.src },
+                  style: this.computedVideoStyles,
+                  ref: 'video'
+                }
+              ),
+              h(
+                'canvas',
+                {
+                  attrs: {
+                    class: 'vue-canvasvideo-canvas',
+                    width: this.width,
+                    height: this.height
+                  },
+                  style: this.computedCanvasStyles,
+                  ref: 'videoCanvas'
+                }
+              ),
+              (this.controls && h(CanvasVideoControls))
+            ]
           )
+
         ]
       )
     )
@@ -71,7 +87,6 @@ export default {
         this.drawFrame()
       }, 1000))
     },
-    unbind () { },
     updateTimeline () {
       // const percentage = (this.video.currentTime * 100 / this.video.duration).toFixed(2)
       // this.timelinePassed.style.width = percentage + '%'
@@ -118,6 +133,27 @@ export default {
       this.ctx.drawImage(video, 0, 0, this.width, this.height)
     }
   },
+  computed: {
+    computedWrapStyles () {
+      return (this.cover)
+        ? Object.assign({}, { paddingBottom: this.aspectRatioPercentage }, videoWrapInnerStyles, mediaCoveringStyles)
+        : { paddingBottom: this.aspectRatioPercentage, ...videoWrapInnerStyles }
+    },
+    computedVideoStyles () {
+      const cover = Object.assign({}, videoStyles, mediaCoveringStyles)
+      if (this.showVideo) {
+        if (this.cover) return cover
+        return videoStyles
+      }
+      return hidden
+    },
+    computedCanvasStyles () {
+      const cover = Object.assign({}, videoCanvasStyles, mediaCoveringStyles)
+      if (this.showVideo) return hidden
+      if (this.cover) return cover
+      return videoCanvasStyles
+    }
+  },
   mounted () {
     this.init()
     this.bind()
@@ -152,6 +188,14 @@ export default {
       default: () => false
     },
     audio: {
+      type: Boolean,
+      default: () => false
+    },
+    cover: {
+      type: Boolean,
+      default: () => false
+    },
+    controls: {
       type: Boolean,
       default: () => false
     }
