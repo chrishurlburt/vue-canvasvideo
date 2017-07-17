@@ -60,15 +60,67 @@ export default {
                 [
                   h(
                     'input',
-                    { attrs: { type: 'range', min: 0, max: 100, class: 'vue-canvasvideo-controls-timeline' }}
+                    {
+                      attrs: {
+                        class: 'vue-canvasvideo-controls-timeline',
+                        type: 'range',
+                        min: 0,
+                        max: this.durationRounded
+                      },
+                      domProps: {
+                        value: this.elapsedRounded
+                      },
+                      on: {
+                        input: (e) => this.$emit('scrubbing', e),
+                        change: (e) => this.$emit('timechange', e)
+                      }
+                    }
                   )
                 ]
+              ),
+              h(
+                'p',
+                { attrs: { class: 'vue-canvasvideo-elapsed' }},
+                `${this.elapsedFormatted} / ${this.durationFormatted}`
               )
             ]
           )
         ]
       )
     )
+  },
+  methods: {
+    formatSeconds (seconds) {
+      if (seconds >= 3600) {
+        // over an hour long, switch to hh:mm:ss
+        return new Date(seconds * 1000).toISOString().substr(11, 8)
+      }
+      return new Date(seconds * 1000).toISOString().substr(14, 5)
+    }
+  },
+  computed: {
+    elapsedRounded () {
+      return Math.round(this.elapsed)
+    },
+    durationRounded () {
+      return Math.round(this.duration)
+    },
+    elapsedFormatted () {
+      return this.formatSeconds(this.elapsed)
+    },
+    durationFormatted () {
+      return this.formatSeconds(this.duration)
+    }
+  },
+  props: {
+    duration: {
+      type: Number,
+      required: true
+    },
+    elapsed: {
+      type: Number,
+      required: true
+    }
   }
 
 }

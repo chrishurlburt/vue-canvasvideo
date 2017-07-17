@@ -47,7 +47,24 @@ export default {
                   ref: 'videoCanvas'
                 }
               ),
-              (this.controls && h(CanvasVideoControls))
+              (
+              this.controls &&
+                h(
+                  CanvasVideoControls,
+                  {
+                    on: {
+                      pause: () => this.pause(),
+                      play: () => this.play(),
+                      scrubbing: (e) => this.scrub(parseInt(e.target.value)),
+                      timechange: (e) => this.jumpTime(parseInt(e.target.value))
+                    },
+                    props: {
+                      duration: this.duration,
+                      elapsed: this.elapsed
+                    }
+                  }
+                )
+              )
             ]
           )
 
@@ -58,7 +75,10 @@ export default {
   data () {
     return {
       playing: false,
+      scrubbing: false,
       aspectRatioPercentage: '',
+      duration: 0,
+      elapsed: 0,
       lastTime: 0,
       width: 0,
       height: 0
@@ -77,8 +97,11 @@ export default {
       video.addEventListener('timeupdate', () => this.drawFrame())
       // Draw the first frame
       video.addEventListener('canplay', () => this.drawFrame())
-      // Set the canvas size to the video size once we know it...
-      video.addEventListener('loadedmetadata', () => this.setCanvasSize())
+      video.addEventListener('loadedmetadata', () => {
+        this.duration = video.duration
+        // Set the canvas size to the video size once we know it...
+        this.setCanvasSize()
+      })
       // in case 'canplay' already fired
       if (video.readyState >= 2) this.drawFrame()
       // debounce window resize
@@ -86,10 +109,6 @@ export default {
         this.setCanvasSize()
         this.drawFrame()
       }, 1000))
-    },
-    updateTimeline () {
-      // const percentage = (this.video.currentTime * 100 / this.video.duration).toFixed(2)
-      // this.timelinePassed.style.width = percentage + '%'
     },
     setCanvasSize () {
       const { video } = this.$refs
@@ -101,22 +120,53 @@ export default {
       this.lastTime = Date.now()
       this.playing = true
       this.renderVideo()
+      this.updateTime()
       // @TODO: set and resync audio
     },
     pause () {
       this.playing = false
     },
+    scrub (time) {
+      if (!this.scrubbing) {
+        this.stopUpdateTime()
+        this.scrubbing = true
+      }
+      this.setTime(time)
+    },
     togglePlay () {
       if (this.playing) this.pause()
       else this.play()
     },
+    jumpTime (time) {
+      this.scrubbing = false
+      this.setTime(time)
+      this.updateTime()
+    },
+    setTime (time) {
+      this.$refs.video.currentTime = time
+      this.elapsed = time
+    },
+    updateTime () {
+      if (!this.timeInterval) {
+        this.timeInterval = setInterval(() => {
+          if (!this.playing) this.stopUpdateTime()
+          this.elapsed = this.$refs.video.currentTime
+        }, 1000)
+      }
+    },
+    stopUpdateTime () {
+      clearInterval(this.timeInterval)
+      this.timeInterval = false
+    },
     renderVideo () {
       const { video } = this.$refs
       const time = Date.now()
-      const elapsed = (time - this.lastTime) / 1000
+      const PreviousElapsed = (time - this.lastTime) / 1000
+      const currentElapsed = video.currentTime
       // set video time, trigger render
-      if (elapsed >= (1 / this.fps)) {
-        video.currentTime = video.currentTime + elapsed
+      if (PreviousElapsed >= (1 / this.fps)) {
+        // only render a frame if the the last frame was rendered >= 1/fps of a second ago
+        video.currentTime = currentElapsed + PreviousElapsed
         this.lastTime = time
       }
 
