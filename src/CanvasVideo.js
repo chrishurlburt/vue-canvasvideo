@@ -17,6 +17,7 @@ export default {
         {
           attrs: { class: 'vue-canvasvideo-wrap' },
           style: videoWrapStyles,
+          on: { click: () => this.videoClicked() },
           ref: 'videoWrapper'
         },
         [
@@ -53,21 +54,21 @@ export default {
                   CanvasVideoControls,
                   {
                     on: {
-                      pause: () => this.pause(),
-                      play: () => this.play(),
+                      pause: (e) => this.pause(e),
+                      play: (e) => this.play(e),
                       scrubbing: (e) => this.scrub(parseInt(e.target.value)),
                       timechange: (e) => this.jumpTime(parseInt(e.target.value))
                     },
                     props: {
                       duration: this.duration,
-                      elapsed: this.elapsed
+                      elapsed: this.elapsed,
+                      playing: this.playing
                     }
                   }
                 )
               )
             ]
           )
-
         ]
       )
     )
@@ -116,15 +117,20 @@ export default {
       this.height = video.videoHeight
       this.aspectRatioPercentage = `${(this.height / this.width) * 100}%`
     },
-    play () {
+    play (e) {
+      if (e) e.stopPropagation()
       this.lastTime = Date.now()
       this.playing = true
       this.renderVideo()
       this.updateTime()
       // @TODO: set and resync audio
     },
-    pause () {
+    pause (e) {
+      if (e) e.stopPropagation()
       this.playing = false
+    },
+    videoClicked () {
+      if (this.playPauseOnClick) this.togglePlay()
     },
     scrub (time) {
       if (!this.scrubbing) {
@@ -186,7 +192,7 @@ export default {
   computed: {
     computedWrapStyles () {
       return (this.cover)
-        ? Object.assign({}, { paddingBottom: this.aspectRatioPercentage }, videoWrapInnerStyles, mediaCoveringStyles)
+        ? Object.assign({}, videoWrapInnerStyles, mediaCoveringStyles)
         : { paddingBottom: this.aspectRatioPercentage, ...videoWrapInnerStyles }
     },
     computedVideoStyles () {
@@ -229,7 +235,7 @@ export default {
       type: Boolean,
       default: () => false
     },
-    pauseOnClick: {
+    playPauseOnClick: {
       type: Boolean,
       default: () => false
     },

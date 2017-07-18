@@ -22,38 +22,8 @@ export default {
               style: controlsWrapStyles
             },
             [
-              h(
-                'svg',
-                {
-                  attrs: { class: 'vue-canvasvideo-controls-play', viewBox: '0 0 512 512' },
-                  on: { click: () => this.$emit('play') },
-                  style: playStyles
-                },
-                [
-                  h(
-                    'path',
-                    { attrs: { d: 'M405.2 232.9L126.8 67.2c-3.4-2-6.9-3.2-10.9-3.2-10.9 0-19.8 9-19.8 20H96v344h.1c0 11 8.9 20 19.8 20 4.1 0 7.5-1.4 11.2-3.4l278.1-165.5c6.6-5.5 10.8-13.8 10.8-23.1s-4.2-17.5-10.8-23.1z' }}
-                  )
-                ]
-              ),
-              h(
-                'svg',
-                {
-                  attrs: { class: 'vue-canvasvideo-controls-pause', viewBox: '0 0 1792 1792' },
-                  on: { click: () => this.$emit('pause') },
-                  style: pauseStyles
-                },
-                [
-                  h(
-                    'path',
-                    {
-                      attrs: {
-                        d: 'M1664 192v1408q0 26-19 45t-45 19h-512q-26 0-45-19t-19-45V192q0-26 19-45t45-19h512q26 0 45 19t19 45zm-896 0v1408q0 26-19 45t-45 19H192q-26 0-45-19t-19-45V192q0-26 19-45t45-19h512q26 0 45 19t19 45z'
-                      }
-                    }
-                  )
-                ]
-              ),
+              (!this.playing && this.renderPlay(h)),
+              (this.playing && this.renderPause(h)),
               h(
                 'div',
                 { attrs: { class: 'vue-canvasvideo-controls-scrubber' }},
@@ -96,6 +66,42 @@ export default {
         return new Date(seconds * 1000).toISOString().substr(11, 8)
       }
       return new Date(seconds * 1000).toISOString().substr(14, 5)
+    },
+    renderPlay (h) {
+      return h(
+        'svg',
+        {
+          attrs: { class: 'vue-canvasvideo-controls-play', viewBox: '0 0 512 512' },
+          on: { click: (e) => this.$emit('play', e) },
+          style: playStyles
+        },
+        [
+          h(
+            'path',
+            { attrs: { d: 'M405.2 232.9L126.8 67.2c-3.4-2-6.9-3.2-10.9-3.2-10.9 0-19.8 9-19.8 20H96v344h.1c0 11 8.9 20 19.8 20 4.1 0 7.5-1.4 11.2-3.4l278.1-165.5c6.6-5.5 10.8-13.8 10.8-23.1s-4.2-17.5-10.8-23.1z' }}
+          )
+        ]
+      )
+    },
+    renderPause (h) {
+      return h(
+        'svg',
+        {
+          attrs: { class: 'vue-canvasvideo-controls-pause', viewBox: '0 0 1792 1792' },
+          on: { click: (e) => this.$emit('pause', e) },
+          style: pauseStyles
+        },
+        [
+          h(
+            'path',
+            {
+              attrs: {
+                d: 'M1664 192v1408q0 26-19 45t-45 19h-512q-26 0-45-19t-19-45V192q0-26 19-45t45-19h512q26 0 45 19t19 45zm-896 0v1408q0 26-19 45t-45 19H192q-26 0-45-19t-19-45V192q0-26 19-45t45-19h512q26 0 45 19t19 45z'
+              }
+            }
+          )
+        ]
+      )
     }
   },
   computed: {
@@ -119,6 +125,10 @@ export default {
     },
     elapsed: {
       type: Number,
+      required: true
+    },
+    playing: {
+      type: Boolean,
       required: true
     }
   }
