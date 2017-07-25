@@ -6,8 +6,8 @@ import {
   videoCanvasStyles,
   videoStyles,
   mediaCoveringStyles
-} from './styles/player/base'
-import { hidden } from './styles/helpers'
+} from './layout/player/base'
+import { hidden } from './layout/helpers'
 
 export default {
   render (h) {
@@ -15,7 +15,7 @@ export default {
       h(
         'div',
         {
-          attrs: { class: 'vue-canvasvideo-wrap' },
+          attrs: { class: 'vue-canvasvideo__wrap' },
           style: videoWrapStyles,
           on: { click: () => this.videoClicked() },
           ref: 'videoWrapper'
@@ -24,14 +24,14 @@ export default {
           h(
             'div',
             {
-              attrs: { class: 'vue-canvasvideo-inner' },
+              attrs: { class: 'vue-canvasvideo__wrap--inner' },
               style: this.computedWrapStyles
             },
             [
               h(
                 'video',
                 {
-                  attrs: { class: 'vue-canvasvideo-video', src: this.src },
+                  attrs: { class: 'vue-canvasvideo__video', src: this.src },
                   style: this.computedVideoStyles,
                   ref: 'video'
                 }
@@ -40,7 +40,7 @@ export default {
                 'canvas',
                 {
                   attrs: {
-                    class: 'vue-canvasvideo-canvas',
+                    class: 'vue-canvasvideo__canvas',
                     width: this.width,
                     height: this.height
                   },
@@ -56,8 +56,8 @@ export default {
                     on: {
                       pause: (e) => this.pause(e),
                       play: (e) => this.play(e),
-                      scrubbing: (e) => this.scrub(parseInt(e.target.value)),
-                      timechange: (e) => this.jumpTime(parseInt(e.target.value))
+                      scrubbing: (val) => this.scrub(val),
+                      timechange: (val) => this.jumpTime(val)
                     },
                     props: {
                       duration: this.duration,
@@ -157,7 +157,7 @@ export default {
         this.timeInterval = setInterval(() => {
           if (!this.playing) this.stopUpdateTime()
           this.elapsed = this.$refs.video.currentTime
-        }, 1000)
+        }, 500)
       }
     },
     stopUpdateTime () {

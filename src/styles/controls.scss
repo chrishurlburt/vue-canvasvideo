@@ -1,0 +1,47 @@
+.vue-canvasvideo-controls {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background: rgba(0,0,0,.2);
+  opacity: 0;
+  transition: opacity .2s linear;
+}
+
+.vue-canvasvideo-controls__wrap {
+  display: flex;
+  align-items: center;
+  margin: 0 15px;
+}
+
+.vue-canvasvideo-control__button {
+  fill: $control-button-color;
+  height: 30px;
+  cursor: pointer;
+}
+
+.vue-canvasvideo-controls__scrubber {
+  margin: 0 25px;
+  width: 100%;
+  .rangeSlider {
+    height: $scrubber-height;
+  }
+  .rangeSlider__handle {
+    top: -7px;
+    width: $scrubber-handle-size;
+    height: $scrubber-handle-size;
+    &::after {
+      width: $scrubber-handle-size / 2;
+      height: $scrubber-handle-size / 2;
+    }
+  }
+}
+
+.vue-canvasvideo__elapsed {
+  color: $control-button-color;
+  font-family: "Helvetica", "Open Sans", sans-serif;
+  white-space: nowrap;
+}
+
+.vue-canvasvideo__wrap--inner:hover .vue-canvasvideo-controls {
+  opacity: 1;
+}

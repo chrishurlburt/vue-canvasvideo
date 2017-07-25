@@ -1,9 +1,4 @@
-import {
-  controlsStyles,
-  controlsWrapStyles,
-  playStyles,
-  pauseStyles
-} from './styles/controls/base'
+import rangeSlider from 'rangeslider-pure'
 
 export default {
   render (h) {
@@ -12,45 +7,36 @@ export default {
         'div',
         {
           attrs: { class: 'vue-canvasvideo-controls' },
-          style: controlsStyles
+          on: { click: e => e.stopPropagation() }
         },
         [
           h(
             'div',
             {
-              attrs: { class: 'vue-canvasvideo-controls-wrap' },
-              style: controlsWrapStyles
+              attrs: { class: 'vue-canvasvideo-controls__wrap' }
             },
             [
               (!this.playing && this.renderPlay(h)),
               (this.playing && this.renderPause(h)),
               h(
                 'div',
-                { attrs: { class: 'vue-canvasvideo-controls-scrubber' }},
+                { attrs: { class: 'vue-canvasvideo-controls__scrubber' }},
                 [
                   h(
                     'input',
                     {
                       attrs: {
-                        class: 'vue-canvasvideo-controls-timeline',
-                        type: 'range',
-                        min: 0,
-                        max: this.durationRounded
+                        class: 'vue-canvasvideo-controls__timeline',
+                        type: 'range'
                       },
-                      domProps: {
-                        value: this.elapsedRounded
-                      },
-                      on: {
-                        input: (e) => this.$emit('scrubbing', e),
-                        change: (e) => this.$emit('timechange', e)
-                      }
+                      ref: 'timeline'
                     }
                   )
                 ]
               ),
               h(
                 'p',
-                { attrs: { class: 'vue-canvasvideo-elapsed' }},
+                { attrs: { class: 'vue-canvasvideo__elapsed' }},
                 `${this.elapsedFormatted} / ${this.durationFormatted}`
               )
             ]
@@ -58,6 +44,17 @@ export default {
         ]
       )
     )
+  },
+  watch: {
+    elapsed (elapsed) {
+      this.$refs.timeline.rangeSlider.update({
+        min: 0,
+        max: this.durationRounded,
+        step: 0.5,
+        value: elapsed,
+        buffer: 0
+      })
+    }
   },
   methods: {
     formatSeconds (seconds) {
@@ -71,14 +68,13 @@ export default {
       return h(
         'svg',
         {
-          attrs: { class: 'vue-canvasvideo-controls-play', viewBox: '0 0 512 512' },
-          on: { click: (e) => this.$emit('play', e) },
-          style: playStyles
+          attrs: { class: 'vue-canvasvideo-control__button vue-canvasvideo-controls__button--play', viewBox: '0 0 320 389' },
+          on: { click: (e) => this.$emit('play', e) }
         },
         [
           h(
             'path',
-            { attrs: { d: 'M405.2 232.9L126.8 67.2c-3.4-2-6.9-3.2-10.9-3.2-10.9 0-19.8 9-19.8 20H96v344h.1c0 11 8.9 20 19.8 20 4.1 0 7.5-1.4 11.2-3.4l278.1-165.5c6.6-5.5 10.8-13.8 10.8-23.1s-4.2-17.5-10.8-23.1z' }}
+            { attrs: { d: 'M320 194.5L0 389V0' }}
           )
         ]
       )
@@ -87,16 +83,15 @@ export default {
       return h(
         'svg',
         {
-          attrs: { class: 'vue-canvasvideo-controls-pause', viewBox: '0 0 1792 1792' },
-          on: { click: (e) => this.$emit('pause', e) },
-          style: pauseStyles
+          attrs: { class: 'vue-canvasvideo-control__button vue-canvasvideo-controls__button--pause', viewBox: '0 0 320 389' },
+          on: { click: (e) => this.$emit('pause', e) }
         },
         [
           h(
             'path',
             {
               attrs: {
-                d: 'M1664 192v1408q0 26-19 45t-45 19h-512q-26 0-45-19t-19-45V192q0-26 19-45t45-19h512q26 0 45 19t19 45zm-896 0v1408q0 26-19 45t-45 19H192q-26 0-45-19t-19-45V192q0-26 19-45t45-19h512q26 0 45 19t19 45z'
+                d: 'M0 389h120V0H0v389zM200 0v389h120V0H200z'
               }
             }
           )
@@ -104,10 +99,14 @@ export default {
       )
     }
   },
+  mounted () {
+    rangeSlider.create(this.$refs.timeline, {
+      value: 0,
+      onSlide: position => this.$emit('scrubbing', position),
+      onSlideEnd: position => this.$emit('timechange', position)
+    })
+  },
   computed: {
-    elapsedRounded () {
-      return Math.round(this.elapsed)
-    },
     durationRounded () {
       return Math.round(this.duration)
     },
@@ -132,5 +131,4 @@ export default {
       required: true
     }
   }
-
 }
