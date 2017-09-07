@@ -84,6 +84,10 @@ props: {
     type: Boolean,
     default: () => false
   },
+  square: { // should the video be centered vertically in a square container
+    type: Boolean,
+    default: () => false
+  },
   controls: { // show video playback controls
     type: Boolean,
     default: () => false

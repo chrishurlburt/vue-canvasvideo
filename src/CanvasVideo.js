@@ -191,9 +191,11 @@ export default {
   },
   computed: {
     computedWrapStyles () {
-      return (this.cover)
+      const styles = (this.cover)
         ? Object.assign({}, videoWrapInnerStyles, mediaCoveringStyles)
-        : { paddingBottom: `${this.aspectRatio * 100}%`, marginTop: `${(1 - this.aspectRatio) / 2 * 100}%`, ...videoWrapInnerStyles }
+        : { paddingBottom: `${this.aspectRatio * 100}%`, ...videoWrapInnerStyles }
+      if (this.square) styles.marginTop = `${(1 - this.aspectRatio) / 2 * 100}%`
+      return styles
     },
     computedVideoStyles () {
       const cover = Object.assign({}, videoStyles, mediaCoveringStyles)
@@ -228,6 +230,10 @@ export default {
       default: () => false
     },
     autoplay: {
+      type: Boolean,
+      default: () => false
+    },
+    square: {
       type: Boolean,
       default: () => false
     },
