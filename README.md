@@ -80,11 +80,11 @@ props: {
     type: Boolean,
     default: () => false
   },
-  cover: { // should the video cover within it's container (useful for backgrounds)
+  cover: { // should the video cover within it's container (useful for backgrounds; cannot be used with 'square' prop)
     type: Boolean,
     default: () => false
   },
-  square: { // should the video be centered vertically in a square container
+  square: { // should the video be centered vertically in a square container (cannot be used with 'cover' prop)
     type: Boolean,
     default: () => false
   },
