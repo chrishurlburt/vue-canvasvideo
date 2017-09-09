@@ -1,6 +1,6 @@
 {
   "name": "vue-canvasvideo",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "A Vue.js component for playing videos on canvas.",
   "author": "Chris Hurlburt <hurlburt.chris@gmail.com>",
   "main": "dist/vue-canvasvideo.common.js",
