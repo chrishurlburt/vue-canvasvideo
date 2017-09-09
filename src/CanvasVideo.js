@@ -191,11 +191,16 @@ export default {
   },
   computed: {
     computedWrapStyles () {
-      const styles = (this.cover)
-        ? Object.assign({}, videoWrapInnerStyles, mediaCoveringStyles)
-        : { paddingBottom: `${this.aspectRatio * 100}%`, ...videoWrapInnerStyles }
-      if (this.square) styles.marginTop = `${(1 - this.aspectRatio) / 2 * 100}%`
-      return styles
+      const base = { paddingBottom: `${this.aspectRatio * 100}%`, ...videoWrapInnerStyles }
+      const centerSquare = { marginTop: `${(1 - this.aspectRatio) / 2 * 100}%` }
+
+      if (this.cover && !this.square) {
+        return Object.assign({}, videoWrapInnerStyles, mediaCoveringStyles)
+      } else if (this.square && !this.cover) {
+        return Object.assign({}, base, centerSquare)
+      }
+
+      return base
     },
     computedVideoStyles () {
       const cover = Object.assign({}, videoStyles, mediaCoveringStyles)
@@ -213,8 +218,12 @@ export default {
     }
   },
   mounted () {
-    this.init()
-    this.bind()
+    if (this.cover && this.square) {
+      console.error('[vue-canvasvideo]: The cover and square props cannot be used together.')
+    } else {
+      this.init()
+      this.bind()
+    }
   },
   props: {
     src: {
